@@ -11,14 +11,26 @@
 		}
 	</style>
 </head>
-<body onload="loadList()">
+<body>
 <h1>Liste Voiture</h1>
 <div id="list_car">
 </div>
 
+<form action="" style="position: fixed;right: 2em;top: 0;">
+	Login<input id="login" name="login"/>
+	Password<input id="password" type="password" name="email"/>
+	<button type="button" onclick="connect()">Connect</button>
+</form>
 
-</body>
-<script type="text/javascript">
+</body onload="load()">
+<script type="text/javascript"> 
+ var user = "";
+ var password = "";
+ 
+ function load(){
+	 if(user!="" && password!="")
+		 loadList();
+ }
  function loadList(){
 	 jQuery.ajax({
 		  type: 'GET', // Le type de ma requete
@@ -30,12 +42,15 @@
 			  item.comments.forEach(function(com){
 				  jQuery("#car_"+item.id).append('<div class="com com_dir">'+com.comment+' - '+com.user.name+' - '+com.date+'</div>');
 			  });
-			  jQuery("#car_"+item.id).append('<div class="com"><input id="com_'+item.id+'" /><button onclick="comment('+item.id+')">Commenter</button></div>');
+			  jQuery("#car_"+item.id).append('<div class="com" id="com_input_'+item.id+'"><input id="com_'+item.id+'" /><button onclick="comment('+item.id+')">Commenter</button></div>');
 			});
 		  	
 		  },
 		  error: function(jqXHR, textStatus, errorThrown) {
-		  }
+		  },
+		  beforeSend: function (xhr) {
+			    xhr.setRequestHeader ("Authorization", "Basic " + btoa(user + ":" + password));
+			  }
 	});	
  }
  
@@ -50,13 +65,22 @@
 		  processData: false,
 		    contentType: false,
 		  success: function(data, textStatus, jqXHR) {
-			  location.reload(true);
-			  //jQuery(".com_dir").after('<div class="com com_dir">'+data.comment+' - '+data.user.name+' - '+data.date+'</div>');
+			 // location.reload(true);
+			  jQuery("#com_input_"+id).before('<div class="com com_dir">'+data.comment+' - '+data.user.name+' - '+data.date+'</div>');
 		  },
 		  error: function(jqXHR, textStatus, errorThrown) {
 			  alert("Error !")
+		  },
+		  beforeSend: function (xhr) {
+		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(user + ":" + password));
 		  }
 	});	
+ }
+ 
+ function connect(){
+	user = jQuery("#login").val();
+	password = jQuery("#password").val();
+	loadList();
  }
 
 </script>
