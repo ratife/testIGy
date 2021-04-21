@@ -16,7 +16,7 @@
 <div id="list_car">
 </div>
 
-<form action="" style="position: fixed;right: 2em;top: 0;">
+<form action="" style="position: fixed;right: 2em;top: 0;" id="form">
 	Login<input id="login" name="login"/>
 	Password<input id="password" type="password" name="email"/>
 	<button type="button" onclick="connect()">Connect</button>
@@ -32,7 +32,9 @@
 	loadList();
  }
  function loadList(){
+	 console.log(beforeConnected);
 	 jQuery("#list_car").html("");
+	 loadDataUser();
 	 jQuery.ajax({
 		  type: 'GET', // Le type de ma requete
 		  url: 'api/car/list', // L'url vers laquelle la requete sera envoyee
@@ -62,7 +64,7 @@
 	 var dataForm = {'comment':jQuery("#com_"+id).val()};
 	 jQuery.ajax({
 		  type: 'GET', // Le type de ma requete
-		  url: 'api/car/comment?id=1&carId='+id+'&comment='+jQuery("#com_"+id).val(), // L'url vers laquelle la requete sera envoyee
+		  url: 'api/car/comment?carId='+id+'&comment='+jQuery("#com_"+id).val(), // L'url vers laquelle la requete sera envoyee
 		  async:true,
 		  data:dataForm,
 		  processData: false,
@@ -86,6 +88,21 @@
 	  }
 	loadList();
  }
+ 
+ 
+ function loadDataUser(){
+	 jQuery.ajax({
+		  type: 'GET', // Le type de ma requete
+		  url: '/api/user', // L'url vers laquelle la requete sera envoyee
+		  async:true,
+		  success: function(data, textStatus, jqXHR) {
+			  jQuery("#form").html("Bonjour "+data.name+"("+data.email+")<br><a href='/logout'>Logout</a>");
+		  },
+		  error: function(jqXHR, textStatus, errorThrown) {
+		  },
+		  beforeSend: beforeConnected
+	});	
+}
 
 </script>
 </html>

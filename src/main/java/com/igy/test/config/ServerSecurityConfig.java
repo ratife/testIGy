@@ -20,7 +20,6 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter  {
 	                .withUser("marc@gmail.com").password("{noop}123").roles("USER", "ADMIN");
 	    }
 
-	    // Secure the endpoins with HTTP Basic authentication
 	    @Override
 	    protected void configure(HttpSecurity http) throws Exception {
 	        http
@@ -29,8 +28,14 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter  {
 	                .authorizeRequests()
 	                .antMatchers(HttpMethod.GET, "/api/car/list").permitAll()
 	                .antMatchers(HttpMethod.GET, "/api/car/comment").hasRole("USER")
+	                .antMatchers(HttpMethod.GET, "/api/user").hasRole("USER")
+	                //.antMatchers(HttpMethod.GET, "/logout").permitAll()
 	                .and()
-	                .csrf().disable()
-	                .formLogin().disable();
+	                .logout(logout -> logout                                                
+	                        .logoutUrl("/logout")                                            
+	                        .logoutSuccessUrl("/list_car.html")                                      
+	                        .invalidateHttpSession(true)                                        
+	                    )
+	                .csrf().disable();
 	    }
 }
