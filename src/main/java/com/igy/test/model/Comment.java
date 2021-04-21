@@ -15,8 +15,6 @@ import javax.persistence.Table;
 @Entity 
 @Table
 public class Comment {
-
-	
 	
 	@Id 
 	@Column  
@@ -80,5 +78,4 @@ public class Comment {
 	public void setUser(User user) {
 		this.user = user;
 	}
-	
 }

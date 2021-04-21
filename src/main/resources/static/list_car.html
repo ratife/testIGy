@@ -11,7 +11,7 @@
 		}
 	</style>
 </head>
-<body>
+<body onload="loadData()">
 <h1>Liste Voiture</h1>
 <div id="list_car">
 </div>
@@ -22,16 +22,17 @@
 	<button type="button" onclick="connect()">Connect</button>
 </form>
 
-</body onload="load()">
+</body >
 <script type="text/javascript"> 
  var user = "";
  var password = "";
+ var beforeConnected = null;
  
- function load(){
-	 if(user!="" && password!="")
-		 loadList();
+ function loadData(){
+	loadList();
  }
  function loadList(){
+	 jQuery("#list_car").html("");
 	 jQuery.ajax({
 		  type: 'GET', // Le type de ma requete
 		  url: 'api/car/list', // L'url vers laquelle la requete sera envoyee
@@ -39,24 +40,26 @@
 		  success: function(data, textStatus, jqXHR) {
 			data.forEach(function(item){
 			  jQuery("#list_car").append('<div id="car_'+item.id+'">'+item.id+' - '+item.mark+' - '+item.im+'</div>')
-			  item.comments.forEach(function(com){
-				  jQuery("#car_"+item.id).append('<div class="com com_dir">'+com.comment+' - '+com.user.name+' - '+com.date+'</div>');
-			  });
-			  jQuery("#car_"+item.id).append('<div class="com" id="com_input_'+item.id+'"><input id="com_'+item.id+'" /><button onclick="comment('+item.id+')">Commenter</button></div>');
+			  if(item.comments){
+				  item.comments.forEach(function(com){
+					  jQuery("#car_"+item.id).append('<div class="com com_dir">'+com.comment+' - '+com.user.name+' - '+com.date+'</div>');
+				  });
+				  jQuery("#car_"+item.id).append('<div class="com" id="com_input_'+item.id+'"><input id="com_'+item.id+'" /><button onclick="comment('+item.id+')">Commenter</button></div>');
+			  }	
 			});
 		  	
 		  },
 		  error: function(jqXHR, textStatus, errorThrown) {
+			  beforeConnected = null;
+			  loadData();
+			  alert("erreur connexion!");
 		  },
-		  beforeSend: function (xhr) {
-			    xhr.setRequestHeader ("Authorization", "Basic " + btoa(user + ":" + password));
-			  }
+		  beforeSend: beforeConnected
 	});	
  }
  
  function comment(id){
 	 var dataForm = {'comment':jQuery("#com_"+id).val()};
-	 console.log(dataForm);
 	 jQuery.ajax({
 		  type: 'GET', // Le type de ma requete
 		  url: 'api/car/comment?id=1&carId='+id+'&comment='+jQuery("#com_"+id).val(), // L'url vers laquelle la requete sera envoyee
@@ -65,21 +68,22 @@
 		  processData: false,
 		    contentType: false,
 		  success: function(data, textStatus, jqXHR) {
-			 // location.reload(true);
 			  jQuery("#com_input_"+id).before('<div class="com com_dir">'+data.comment+' - '+data.user.name+' - '+data.date+'</div>');
+			  jQuery("#com_"+id).val("");
 		  },
 		  error: function(jqXHR, textStatus, errorThrown) {
 			  alert("Error !")
 		  },
-		  beforeSend: function (xhr) {
-		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(user + ":" + password));
-		  }
+		  beforeSend: beforeConnected
 	});	
  }
  
  function connect(){
 	user = jQuery("#login").val();
 	password = jQuery("#password").val();
+	beforeConnected = function (xhr) {
+	    xhr.setRequestHeader ("Authorization", "Basic " + btoa(user + ":" + password));
+	  }
 	loadList();
  }
 
