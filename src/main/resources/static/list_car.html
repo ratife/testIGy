@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://unpkg.com/purecss@2.0.5/build/pure-min.css" integrity="sha384-LTIDeidl25h2dPxrB2Ekgc9c7sEC3CWGM6HeFmuDNUjX76Ert4Z4IY714dhZHPLd" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+	<style>
+		.com{
+			margin-left: 1em;
+		}
+	</style>
+</head>
+<body onload="loadList()">
+<h1>Liste Voiture</h1>
+<div id="list_car">
+</div>
+
+
+</body>
+<script type="text/javascript">
+ function loadList(){
+	 jQuery.ajax({
+		  type: 'GET', // Le type de ma requete
+		  url: 'api/car/list', // L'url vers laquelle la requete sera envoyee
+		  async:true,
+		  success: function(data, textStatus, jqXHR) {
+			data.forEach(function(item){
+			  jQuery("#list_car").append('<div id="car_'+item.id+'">'+item.id+' - '+item.mark+' - '+item.im+'</div>')
+			  item.comments.forEach(function(com){
+				  jQuery("#car_"+item.id).append('<div class="com com_dir">'+com.comment+' - '+com.user.name+' - '+com.date+'</div>');
+			  });
+			  jQuery("#car_"+item.id).append('<div class="com"><input id="com_'+item.id+'" /><button onclick="comment('+item.id+')">Commenter</button></div>');
+			});
+		  	
+		  },
+		  error: function(jqXHR, textStatus, errorThrown) {
+		  }
+	});	
+ }
+ 
+ function comment(id){
+	 var dataForm = {'comment':jQuery("#com_"+id).val()};
+	 console.log(dataForm);
+	 jQuery.ajax({
+		  type: 'GET', // Le type de ma requete
+		  url: 'api/car/comment?id=1&carId='+id+'&comment='+jQuery("#com_"+id).val(), // L'url vers laquelle la requete sera envoyee
+		  async:true,
+		  data:dataForm,
+		  processData: false,
+		    contentType: false,
+		  success: function(data, textStatus, jqXHR) {
+			  location.reload(true);
+			  //jQuery(".com_dir").after('<div class="com com_dir">'+data.comment+' - '+data.user.name+' - '+data.date+'</div>');
+		  },
+		  error: function(jqXHR, textStatus, errorThrown) {
+			  alert("Error !")
+		  }
+	});	
+ }
+
+</script>
+</html>
+
+
